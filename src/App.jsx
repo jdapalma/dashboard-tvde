@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Login from './pages/Login'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
+import Register from './pages/Register'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -25,7 +26,7 @@ function App() {
             }
           >
             <Route path="/" element={<Dashboard />} />
-            <Route path="/register" element={<div>Register</div>} />
+            <Route path="/register" element={<Register />} />
             <Route path="/history" element={<div>History</div>} />
             <Route path="/settings" element={<div>Settings</div>} />
           </Route>
