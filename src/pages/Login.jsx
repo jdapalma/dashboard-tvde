@@ -9,6 +9,7 @@ export default function Login() {
   const [fullName, setFullName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [registered, setRegistered] = useState(false)
   const { signIn, signUp, signInWithGoogle } = useAuth()
   const navigate = useNavigate()
 
@@ -19,6 +20,8 @@ export default function Login() {
     try {
       if (isRegister) {
         await signUp(email, password, fullName)
+        setRegistered(true)
+        return
       } else {
         await signIn(email, password)
       }
@@ -51,6 +54,20 @@ export default function Login() {
         {error && (
           <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2 rounded-lg mb-4 text-sm">
             {error}
+          </div>
+        )}
+
+        {registered && (
+          <div className="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-4 rounded-lg mb-4 text-sm space-y-2">
+            <p className="font-semibold">Cuenta creada correctamente</p>
+            <p>Enviamos un correo de confirmación a <strong>{email}</strong>.</p>
+            <p>Valida tu correo electrónico para poder acceder a la app.</p>
+            <button
+              onClick={() => { setRegistered(false); setIsRegister(false) }}
+              className="text-[#a855f7] hover:underline mt-2"
+            >
+              Ir a iniciar sesión
+            </button>
           </div>
         )}
 

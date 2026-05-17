@@ -66,7 +66,7 @@ export default function Dashboard() {
           value={kpis.profit}
           color={kpis.profit >= 0 ? 'text-green-400' : 'text-red-400'}
         />
-        <KPICard title="Total viajes" value={kpis.totalTrips} color="text-[#c084fc]" />
+        <KPICard title="Total viajes" value={kpis.totalTrips} color="text-[#c084fc]" decimals={0} />
         <KPICard title="Promedio/viaje" value={kpis.avgPerTrip} color="text-[#c084fc]" />
       </div>
 
