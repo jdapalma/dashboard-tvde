@@ -28,8 +28,9 @@ create table transactions (
 -- Categories table
 create table categories (
   id uuid primary key default uuid_generate_v4(),
-  name text not null unique,
-  type text not null check (type in ('income', 'expense'))
+  name text not null,
+  type text not null check (type in ('income', 'expense')),
+  unique(name, type)
 );
 
 -- Insert default categories
