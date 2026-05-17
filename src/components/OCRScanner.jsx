@@ -1,7 +1,127 @@
+import { useState, useRef } from 'react'
+import { processImage } from '../utils/ocr'
+
 export default function OCRScanner({ onDetected }) {
+  const [preview, setPreview] = useState(null)
+  const [processing, setProcessing] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [result, setResult] = useState(null)
+  const [error, setError] = useState('')
+  const fileRef = useRef()
+
+  function handleFileSelect(e) {
+    const file = e.target.files[0]
+    if (!file) return
+
+    setPreview(URL.createObjectURL(file))
+    setResult(null)
+    setError('')
+    processFile(file)
+  }
+
+  async function processFile(file) {
+    setProcessing(true)
+    setProgress(0)
+    try {
+      const { extracted, confidence } = await processImage(file)
+      setResult({ ...extracted, confidence })
+      setProgress(100)
+    } catch (err) {
+      setError('Error al procesar la imagen. Intenta con otra foto.')
+    } finally {
+      setProcessing(false)
+    }
+  }
+
+  function handleConfirm() {
+    onDetected({
+      amount: result.amount || '',
+      date: result.date || new Date().toISOString().split('T')[0],
+      description: result.description || '',
+      source: 'ocr',
+    })
+  }
+
   return (
-    <div className="bg-[#231c3d] border border-[#3b2d5e] rounded-lg p-6 text-center">
-      <p className="text-[#94a3b8] text-sm">Escaneo OCR no disponible aun. Usa el modo Manual.</p>
+    <div className="space-y-4">
+      <div
+        onClick={() => fileRef.current?.click()}
+        className="border-2 border-dashed border-[#3b2d5e] rounded-xl p-8 text-center cursor-pointer hover:border-[#a855f7] transition-colors"
+      >
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+        {preview ? (
+          <img src={preview} alt="Preview" className="max-h-48 mx-auto rounded-lg" />
+        ) : (
+          <div className="text-[#94a3b8]">
+            <p className="text-lg mb-2">Toca para tomar foto o seleccionar imagen</p>
+            <p className="text-sm">Soporta JPG, PNG</p>
+          </div>
+        )}
+      </div>
+
+      {processing && (
+        <div className="space-y-2">
+          <div className="text-sm text-[#94a3b8]">Procesando imagen... {Math.round(progress)}%</div>
+          <div className="w-full bg-[#231c3d] rounded-full h-2">
+            <div
+              className="bg-[#a855f7] h-2 rounded-full transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
+
+      {result && (
+        <div className="bg-[#231c3d] border border-[#3b2d5e] rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-medium text-white">Datos detectados</h4>
+            <span className="text-xs text-[#94a3b8]">
+              Confianza: {Math.round(result.confidence)}%
+            </span>
+          </div>
+
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-[#94a3b8]">Monto:</span>
+              <span className="text-white">{result.amount ? `${result.amount} €` : 'No detectado'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#94a3b8]">Fecha:</span>
+              <span className="text-white">{result.date || 'No detectada'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#94a3b8]">Descripcion:</span>
+              <span className="text-white truncate max-w-[200px]">{result.description || 'No detectada'}</span>
+            </div>
+          </div>
+
+          <button
+            onClick={handleConfirm}
+            className="w-full py-3 bg-[#a855f7] hover:bg-[#9333ea] text-white font-semibold rounded-lg transition-colors"
+          >
+            Usar estos datos
+          </button>
+        </div>
+      )}
+
+      {result && (
+        <p className="text-xs text-[#94a3b8] text-center">
+          Revisa los datos antes de continuar. Puedes corregirlos en el formulario.
+        </p>
+      )}
     </div>
   )
 }
