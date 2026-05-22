@@ -1,13 +1,15 @@
 import { useState, useMemo } from 'react'
 import { useTransactions } from '../hooks/useTransactions'
 import TransactionTable from '../components/TransactionTable'
+import EditTransactionModal from '../components/EditTransactionModal'
 import Skeleton from '../components/Skeleton'
 
 export default function History() {
-  const { transactions, loading, deleteTransaction } = useTransactions()
+  const { transactions, loading, deleteTransaction, updateTransaction } = useTransactions()
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('all')
   const [platformFilter, setPlatformFilter] = useState('all')
+  const [editingTransaction, setEditingTransaction] = useState(null)
 
   const filtered = useMemo(() => {
     return transactions.filter((t) => {
@@ -63,8 +65,20 @@ export default function History() {
       </div>
 
       <div className="bg-[#1a1432] border border-[#2d2350] rounded-xl overflow-hidden">
-        <TransactionTable transactions={filtered} onDelete={deleteTransaction} />
+        <TransactionTable
+          transactions={filtered}
+          onDelete={deleteTransaction}
+          onEdit={setEditingTransaction}
+        />
       </div>
+
+      {editingTransaction && (
+        <EditTransactionModal
+          transaction={editingTransaction}
+          onSave={updateTransaction}
+          onClose={() => setEditingTransaction(null)}
+        />
+      )}
     </div>
   )
 }
