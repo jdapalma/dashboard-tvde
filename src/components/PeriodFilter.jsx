@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react'
 import { RefreshCw } from 'lucide-react'
 
 const presets = [
-  { label: 'Esta semana', value: 'week' },
-  { label: 'Semana anterior', value: 'lastWeek' },
-  { label: 'Este mes', value: 'month' },
-  { label: 'Este año', value: 'year' },
+  { label: 'Semana Actual', value: 'week' },
+  { label: 'Semana Anterior', value: 'lastWeek' },
+  { label: 'Mes Actual', value: 'month' },
+  { label: 'Mes Anterior', value: 'lastMonth' },
+  { label: 'Año Actual', value: 'year' },
+  { label: 'Año Anterior', value: 'lastYear' },
   { label: 'Personalizado', value: 'custom' },
 ]
 
@@ -33,9 +35,21 @@ function getPresetRange(preset) {
     case 'month':
       start.setDate(1)
       break
+    case 'lastMonth': {
+      start.setMonth(start.getMonth() - 1, 1)
+      const end = new Date(start.getFullYear(), start.getMonth() + 1, 0, 23, 59, 59)
+      start.setHours(0, 0, 0, 0)
+      return { start, end }
+    }
     case 'year':
       start.setMonth(0, 1)
       break
+    case 'lastYear': {
+      start.setFullYear(start.getFullYear() - 1, 0, 1)
+      const end = new Date(start.getFullYear(), 11, 31, 23, 59, 59)
+      start.setHours(0, 0, 0, 0)
+      return { start, end }
+    }
     default:
       return null
   }

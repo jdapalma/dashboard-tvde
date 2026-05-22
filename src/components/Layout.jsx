@@ -5,7 +5,6 @@ const navItems = [
   { to: '/', label: 'Dashboard', icon: '📊' },
   { to: '/register', label: 'Registrar', icon: '➕' },
   { to: '/financing', label: 'Financiados', icon: '💳' },
-  { to: '/history', label: 'Historial', icon: '📋' },
   { to: '/settings', label: 'Ajustes', icon: '⚙️' },
 ]
 
