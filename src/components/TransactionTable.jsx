@@ -1,4 +1,4 @@
-export default function TransactionTable({ transactions, onDelete }) {
+export default function TransactionTable({ transactions, onDelete, onEdit }) {
   if (transactions.length === 0) {
     return (
       <div className="text-center py-12 text-[#94a3b8]">
@@ -45,7 +45,15 @@ export default function TransactionTable({ transactions, onDelete }) {
               }`}>
                 {t.type === 'income' ? '+' : '-'}{Number(t.amount).toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
               </td>
-              <td className="py-3 px-4 text-right">
+              <td className="py-3 px-4 text-right space-x-2">
+                {onEdit && (
+                  <button
+                    onClick={() => onEdit(t)}
+                    className="text-[#94a3b8] hover:text-[#a855f7] transition-colors text-xs"
+                  >
+                    Editar
+                  </button>
+                )}
                 <button
                   onClick={() => onDelete(t.id)}
                   className="text-[#94a3b8] hover:text-red-400 transition-colors text-xs"
