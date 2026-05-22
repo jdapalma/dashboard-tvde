@@ -5,6 +5,7 @@ import {
 } from 'recharts'
 import { TrendingUp, TrendingDown, DollarSign, Car, BarChart3, CreditCard, AlertTriangle, CheckCircle, Trophy, Calendar } from 'lucide-react'
 import { useTransactions } from '../hooks/useTransactions'
+import { useCategories } from '../hooks/useCategories'
 import {
   calculateKPIs, getExpensesByCategory, getMonthlyData, getUnpaidFinanced,
   getTopMonthsByIncome, getTopMonthsByProfit, getTopWeeks,
@@ -28,10 +29,12 @@ function defaultDateRange() {
 export default function Dashboard() {
   const { transactions, loading, deleteTransaction, updateTransaction } = useTransactions()
   const [dateRange, setDateRange] = useState(defaultDateRange)
-  const [search, setSearch] = useState('')
+  const [searchAmount, setSearchAmount] = useState('')
   const [typeFilter, setTypeFilter] = useState('all')
   const [platformFilter, setPlatformFilter] = useState('all')
+  const [categoryFilter, setCategoryFilter] = useState('all')
   const [editingTransaction, setEditingTransaction] = useState(null)
+  const { incomeCategories, expenseCategories } = useCategories()
 
   const kpis = useMemo(
     () => calculateKPIs(transactions, dateRange),
@@ -53,16 +56,28 @@ export default function Dashboard() {
   const topProfit = useMemo(() => getTopMonthsByProfit(transactions), [transactions])
   const topWeeks = useMemo(() => getTopWeeks(transactions), [transactions])
 
+  const allCategories = useMemo(() => {
+    const cats = new Set()
+    incomeCategories.forEach(c => cats.add(c.name))
+    expenseCategories.forEach(c => cats.add(c.name))
+    return [...cats].sort()
+  }, [incomeCategories, expenseCategories])
+
   const filtered = useMemo(() => {
     return transactions.filter((t) => {
       const d = new Date(t.date)
       if (d < dateRange.start || d > dateRange.end) return false
       if (typeFilter !== 'all' && t.type !== typeFilter) return false
       if (platformFilter !== 'all' && t.platform !== platformFilter) return false
-      if (search && !t.description?.toLowerCase().includes(search.toLowerCase())) return false
+      if (categoryFilter !== 'all' && t.category !== categoryFilter) return false
+      if (searchAmount) {
+        const amount = Number(t.amount)
+        const searchVal = parseFloat(searchAmount.replace(',', '.'))
+        if (isNaN(searchVal) || amount !== searchVal) return false
+      }
       return true
     })
-  }, [transactions, search, typeFilter, platformFilter, dateRange])
+  }, [transactions, searchAmount, typeFilter, platformFilter, categoryFilter, dateRange])
 
   const summary = useMemo(() => {
     const income = filtered
@@ -166,11 +181,12 @@ export default function Dashboard() {
       {/* Transaction filters */}
       <div className="flex flex-wrap gap-3">
         <input
-          type="text"
-          placeholder="Buscar por descripción..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 min-w-[200px] px-4 py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white placeholder-[#94a3b8] focus:outline-none focus:border-[#a855f7] text-sm"
+          type="number"
+          placeholder="Buscar por monto..."
+          value={searchAmount}
+          onChange={(e) => setSearchAmount(e.target.value)}
+          step="0.01"
+          className="flex-1 min-w-[150px] px-4 py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white placeholder-[#94a3b8] focus:outline-none focus:border-[#a855f7] text-sm"
         />
         <select
           value={typeFilter}
@@ -180,6 +196,16 @@ export default function Dashboard() {
           <option value="all">Todos los tipos</option>
           <option value="income">Ingresos</option>
           <option value="expense">Gastos</option>
+        </select>
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="px-4 py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-sm"
+        >
+          <option value="all">Todas las categorías</option>
+          {allCategories.map(c => (
+            <option key={c} value={c}>{c}</option>
+          ))}
         </select>
         <select
           value={platformFilter}
