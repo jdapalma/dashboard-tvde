@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { RefreshCw } from 'lucide-react'
 
 const presets = [
   { label: 'Esta semana', value: 'week' },
@@ -42,22 +43,27 @@ function getPresetRange(preset) {
   return { start, end: now }
 }
 
-function toDateString(d) {
-  return d.toISOString().split('T')[0]
+function toLocalDateStr(d) {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
 }
 
 export default function PeriodFilter({ dateRange, onDateRangeChange }) {
   const activePreset = dateRange.preset || 'month'
-  const [startStr, setStartStr] = useState(toDateString(dateRange.start))
-  const [endStr, setEndStr] = useState(toDateString(dateRange.end))
+  const [startStr, setStartStr] = useState(toLocalDateStr(dateRange.start))
+  const [endStr, setEndStr] = useState(toLocalDateStr(dateRange.end))
 
   useEffect(() => {
-    setStartStr(toDateString(dateRange.start))
-    setEndStr(toDateString(dateRange.end))
+    setStartStr(toLocalDateStr(dateRange.start))
+    setEndStr(toLocalDateStr(dateRange.end))
   }, [dateRange.start, dateRange.end])
 
   function handlePreset(value) {
     if (value === 'custom') {
+      setStartStr(toLocalDateStr(dateRange.start))
+      setEndStr(toLocalDateStr(dateRange.end))
       onDateRangeChange({ ...dateRange, preset: 'custom' })
     } else {
       const range = getPresetRange(value)
@@ -65,16 +71,13 @@ export default function PeriodFilter({ dateRange, onDateRangeChange }) {
     }
   }
 
-  function handleCustomDate(field, raw) {
-    if (field === 'start') setStartStr(raw)
-    else setEndStr(raw)
-
-    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
-      const d = new Date(raw + 'T00:00:00')
-      if (!isNaN(d.getTime())) {
-        onDateRangeChange({ ...dateRange, [field]: d })
-      }
-    }
+  function handleApply() {
+    if (!startStr || !endStr) return
+    const start = new Date(startStr + 'T00:00:00')
+    const end = new Date(endStr + 'T23:59:59')
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return
+    if (start > end) return
+    onDateRangeChange({ start, end, preset: 'custom' })
   }
 
   return (
@@ -98,16 +101,22 @@ export default function PeriodFilter({ dateRange, onDateRangeChange }) {
           <input
             type="date"
             value={startStr}
-            onChange={(e) => handleCustomDate('start', e.target.value)}
+            onChange={(e) => setStartStr(e.target.value)}
             className="px-3 py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-sm"
           />
           <span className="text-[#94a3b8]">a</span>
           <input
             type="date"
             value={endStr}
-            onChange={(e) => handleCustomDate('end', e.target.value)}
+            onChange={(e) => setEndStr(e.target.value)}
             className="px-3 py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-sm"
           />
+          <button
+            onClick={handleApply}
+            className="flex items-center gap-1 px-3 py-2 bg-[#a855f7] text-white rounded-lg hover:bg-[#9333ea] transition-colors text-sm"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>
