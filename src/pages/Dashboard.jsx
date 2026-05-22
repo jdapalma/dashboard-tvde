@@ -3,10 +3,11 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts'
-import { TrendingUp, TrendingDown, DollarSign, Car, BarChart3, CreditCard, AlertTriangle, CheckCircle } from 'lucide-react'
+import { TrendingUp, TrendingDown, DollarSign, Car, BarChart3, CreditCard, AlertTriangle, CheckCircle, Trophy, Calendar } from 'lucide-react'
 import { useTransactions } from '../hooks/useTransactions'
 import {
   calculateKPIs, getExpensesByCategory, getMonthlyData, getUnpaidFinanced,
+  getTopMonthsByIncome, getTopMonthsByProfit, getTopWeeks,
 } from '../utils/kpi'
 import KPICard from '../components/KPICard'
 import PeriodFilter from '../components/PeriodFilter'
@@ -48,6 +49,9 @@ export default function Dashboard() {
   )
 
   const monthlyData = useMemo(() => getMonthlyData(transactions), [transactions])
+  const topIncome = useMemo(() => getTopMonthsByIncome(transactions), [transactions])
+  const topProfit = useMemo(() => getTopMonthsByProfit(transactions), [transactions])
+  const topWeeks = useMemo(() => getTopWeeks(transactions), [transactions])
 
   const filtered = useMemo(() => {
     return transactions.filter((t) => {
@@ -233,6 +237,87 @@ export default function Dashboard() {
           onClose={() => setEditingTransaction(null)}
         />
       )}
+
+      {/* Rankings */}
+      <div className="grid md:grid-cols-3 gap-4">
+        <div className="bg-[#1a1432] border border-[#2d2350] rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Trophy className="w-4 h-4 text-green-400" />
+            <h3 className="text-sm font-medium text-[#94a3b8]">Top 5 meses en ingresos</h3>
+          </div>
+          {topIncome.length === 0 ? (
+            <p className="text-xs text-[#4a4458] text-center py-4">Sin datos</p>
+          ) : (
+            <div className="space-y-2">
+              {topIncome.map((item, i) => (
+                <div key={item.key} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-bold w-5 ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-orange-400' : 'text-[#4a4458]'}`}>
+                      {i + 1}
+                    </span>
+                    <span className="text-xs text-white">{item.label}</span>
+                  </div>
+                  <span className="text-xs font-medium text-green-400">
+                    {item.income.toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="bg-[#1a1432] border border-[#2d2350] rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Trophy className="w-4 h-4 text-[#a855f7]" />
+            <h3 className="text-sm font-medium text-[#94a3b8]">Top 5 meses en ganancia</h3>
+          </div>
+          {topProfit.length === 0 ? (
+            <p className="text-xs text-[#4a4458] text-center py-4">Sin datos</p>
+          ) : (
+            <div className="space-y-2">
+              {topProfit.map((item, i) => (
+                <div key={item.key} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-bold w-5 ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-orange-400' : 'text-[#4a4458]'}`}>
+                      {i + 1}
+                    </span>
+                    <span className="text-xs text-white">{item.label}</span>
+                  </div>
+                  <span className={`text-xs font-medium ${item.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {item.profit.toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="bg-[#1a1432] border border-[#2d2350] rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Calendar className="w-4 h-4 text-[#c084fc]" />
+            <h3 className="text-sm font-medium text-[#94a3b8]">Top 5 semanas</h3>
+          </div>
+          {topWeeks.length === 0 ? (
+            <p className="text-xs text-[#4a4458] text-center py-4">Sin datos</p>
+          ) : (
+            <div className="space-y-2">
+              {topWeeks.map((item, i) => (
+                <div key={item.key} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-bold w-5 ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-orange-400' : 'text-[#4a4458]'}`}>
+                      {i + 1}
+                    </span>
+                    <span className="text-xs text-white">{item.label}</span>
+                  </div>
+                  <span className="text-xs font-medium text-[#c084fc]">
+                    {item.income.toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
