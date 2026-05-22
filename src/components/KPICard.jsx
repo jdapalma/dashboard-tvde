@@ -1,4 +1,4 @@
-export default function KPICard({ title, value, color = 'text-[#a855f7]', decimals = 2, icon: Icon }) {
+export default function KPICard({ title, value, color = 'text-[#a855f7]', decimals = 2, icon: Icon, suffix }) {
   return (
     <div className="bg-[#1a1432] border border-[#2d2350] rounded-xl p-4">
       <div className="flex items-start justify-between">
@@ -8,6 +8,7 @@ export default function KPICard({ title, value, color = 'text-[#a855f7]', decima
             {typeof value === 'number'
               ? value.toLocaleString('es-ES', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
               : value}
+            {suffix && <span className="text-lg">{suffix}</span>}
           </p>
         </div>
         {Icon && <Icon className={`w-6 h-6 ${color} opacity-40`} />}

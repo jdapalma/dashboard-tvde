@@ -4,7 +4,7 @@ import {
   PieChart, Pie, Cell, Legend,
   LineChart, Line,
 } from 'recharts'
-import { TrendingUp, TrendingDown, DollarSign, Car, BarChart3, Trophy, Calendar, CreditCard } from 'lucide-react'
+import { TrendingUp, TrendingDown, DollarSign, Car, BarChart3, Trophy, Calendar, CreditCard, AlertTriangle, CheckCircle } from 'lucide-react'
 import { useTransactions } from '../hooks/useTransactions'
 import {
   calculateKPIs, getExpensesByCategory, getMonthlyData, getProfitOverTime,
@@ -53,8 +53,8 @@ export default function Dashboard() {
     return (
       <div className="space-y-4">
         <Skeleton className="h-10 w-48" />
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+          {[...Array(7)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           <Skeleton className="h-64" />
@@ -70,7 +70,7 @@ export default function Dashboard() {
 
       <PeriodFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         <KPICard title="Ingresos" value={kpis.totalIncome} color="text-green-400" icon={TrendingUp} />
         <KPICard title="Gastos" value={kpis.totalExpenses} color="text-red-400" icon={TrendingDown} />
         <KPICard
@@ -78,6 +78,14 @@ export default function Dashboard() {
           value={kpis.profit}
           color={kpis.profit >= 0 ? 'text-green-400' : 'text-red-400'}
           icon={DollarSign}
+        />
+        <KPICard
+          title="Gasto / Ingreso"
+          value={kpis.expenseRatio}
+          color={kpis.expenseRatio > 40 ? 'text-red-400' : 'text-green-400'}
+          decimals={1}
+          suffix="%"
+          icon={kpis.expenseRatio > 40 ? AlertTriangle : CheckCircle}
         />
         <KPICard title="Total viajes" value={kpis.totalTrips} color="text-[#c084fc]" decimals={0} icon={Car} />
         <KPICard title="Promedio/viaje" value={kpis.avgPerTrip} color="text-[#c084fc]" icon={BarChart3} />

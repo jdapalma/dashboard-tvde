@@ -19,6 +19,7 @@ export function calculateKPIs(transactions, dateRange) {
     .reduce((sum, t) => sum + t.trips_count, 0)
 
   const avgPerTrip = totalTrips > 0 ? profit / totalTrips : 0
+  const expenseRatio = totalIncome > 0 ? (totalExpenses / totalIncome) * 100 : 0
 
   return {
     totalIncome,
@@ -26,6 +27,7 @@ export function calculateKPIs(transactions, dateRange) {
     profit,
     totalTrips,
     avgPerTrip,
+    expenseRatio,
   }
 }
 
