@@ -16,7 +16,7 @@ export function useTransactions() {
     setLoading(true)
     const { data, error } = await supabase
       .from('transactions')
-      .select('*')
+      .select('*, financing_instruments(name)')
       .eq('user_id', user.id)
       .order('date', { ascending: false })
 
@@ -28,11 +28,24 @@ export function useTransactions() {
     const { data, error } = await supabase
       .from('transactions')
       .insert({ ...transaction, user_id: user.id })
-      .select()
+      .select('*, financing_instruments(name)')
       .single()
 
     if (error) throw error
     setTransactions((prev) => [data, ...prev])
+    return data
+  }
+
+  async function updateTransaction(id, updates) {
+    const { data, error } = await supabase
+      .from('transactions')
+      .update(updates)
+      .eq('id', id)
+      .select('*, financing_instruments(name)')
+      .single()
+
+    if (error) throw error
+    setTransactions((prev) => prev.map(t => t.id === id ? data : t))
     return data
   }
 
@@ -46,5 +59,5 @@ export function useTransactions() {
     setTransactions((prev) => prev.filter((t) => t.id !== id))
   }
 
-  return { transactions, loading, addTransaction, deleteTransaction, refetch: fetchTransactions }
+  return { transactions, loading, addTransaction, updateTransaction, deleteTransaction, refetch: fetchTransactions }
 }
