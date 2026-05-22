@@ -15,3 +15,13 @@ body {
   color: var(--text-primary);
   font-family: 'Inter', system-ui, sans-serif;
 }
+
+/* Dark theme for native date inputs */
+input[type="date"] {
+  color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(0.8);
+  cursor: pointer;
+}
