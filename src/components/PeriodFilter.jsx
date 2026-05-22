@@ -1,5 +1,6 @@
 const presets = [
   { label: 'Esta semana', value: 'week' },
+  { label: 'Semana anterior', value: 'lastWeek' },
   { label: 'Este mes', value: 'month' },
   { label: 'Este año', value: 'year' },
   { label: 'Personalizado', value: 'custom' },
@@ -10,9 +11,22 @@ function getPresetRange(preset) {
   const start = new Date()
 
   switch (preset) {
-    case 'week':
-      start.setDate(now.getDate() - now.getDay())
+    case 'week': {
+      const day = now.getDay()
+      const diff = day === 0 ? 6 : day - 1
+      start.setDate(now.getDate() - diff)
       break
+    }
+    case 'lastWeek': {
+      const day = now.getDay()
+      const diff = day === 0 ? 6 : day - 1
+      start.setDate(now.getDate() - diff - 7)
+      const end = new Date(start)
+      end.setDate(start.getDate() + 6)
+      end.setHours(23, 59, 59, 999)
+      start.setHours(0, 0, 0, 0)
+      return { start, end }
+    }
     case 'month':
       start.setDate(1)
       break
