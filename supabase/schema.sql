@@ -19,9 +19,12 @@ create table transactions (
   platform text not null default 'uber' check (platform in ('uber', 'bolt', 'otro')),
   description text,
   receipt_url text,
-  source text not null default 'manual' check (source in ('manual', 'ocr')),
+  source text not null default 'manual' check (source in ('manual', 'ocr', 'voice')),
   date date not null default current_date,
   trips_count int,
+  is_paid boolean not null default true,
+  is_financed boolean not null default false,
+  financing_instrument_id uuid references financing_instruments(id),
   created_at timestamptz default now()
 );
 
@@ -47,10 +50,22 @@ insert into categories (name, type) values
   ('Bonificación', 'income'),
   ('Otro', 'income');
 
+-- Financing instruments table
+create table financing_instruments (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references profiles(id) on delete cascade,
+  name text not null,
+  created_at timestamptz default now(),
+  unique(user_id, name)
+);
+
+-- Default instruments (inserted per user via app, not here)
+
 -- Indexes
 create index idx_transactions_user_id on transactions(user_id);
 create index idx_transactions_date on transactions(date);
 create index idx_transactions_type on transactions(type);
+create index idx_transactions_is_financed on transactions(is_financed, is_paid);
 
 -- Row Level Security
 alter table profiles enable row level security;
@@ -91,6 +106,25 @@ create policy "Users can delete own transactions"
 create policy "Anyone can view categories"
   on categories for select
   using (true);
+
+-- Financing instruments policies
+alter table financing_instruments enable row level security;
+
+create policy "Users can view own instruments"
+  on financing_instruments for select
+  using (auth.uid() = user_id);
+
+create policy "Users can insert own instruments"
+  on financing_instruments for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can update own instruments"
+  on financing_instruments for update
+  using (auth.uid() = user_id);
+
+create policy "Users can delete own instruments"
+  on financing_instruments for delete
+  using (auth.uid() = user_id);
 
 -- Auto-create profile on signup
 create or replace function public.handle_new_user()
