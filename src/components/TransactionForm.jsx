@@ -92,19 +92,21 @@ export default function TransactionForm({ onSubmit, initialData = {} }) {
         />
       </div>
 
-      {/* Platform */}
-      <div>
-        <label className="block text-sm text-[#94a3b8] mb-1">Plataforma</label>
-        <select
-          value={platform}
-          onChange={(e) => setPlatform(e.target.value)}
-          className="w-full px-4 py-3 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white focus:outline-none focus:border-[#a855f7]"
-        >
-          {PLATFORMS.map((p) => (
-            <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>
-          ))}
-        </select>
-      </div>
+      {/* Platform - only for income */}
+      {type === 'income' && (
+        <div>
+          <label className="block text-sm text-[#94a3b8] mb-1">Plataforma</label>
+          <select
+            value={platform}
+            onChange={(e) => setPlatform(e.target.value)}
+            className="w-full px-4 py-3 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white focus:outline-none focus:border-[#a855f7]"
+          >
+            {PLATFORMS.map((p) => (
+              <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Category */}
       <div>

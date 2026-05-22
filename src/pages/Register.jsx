@@ -1,19 +1,21 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useTransactions } from '../hooks/useTransactions'
 import TransactionForm from '../components/TransactionForm'
 import OCRScanner from '../components/OCRScanner'
 import VoiceInput from '../components/VoiceInput'
+import { CheckCircle2 } from 'lucide-react'
 
 export default function Register() {
   const [mode, setMode] = useState('manual') // 'manual' | 'ocr' | 'voice'
   const [detectedData, setDetectedData] = useState(null)
+  const [success, setSuccess] = useState(null)
   const { addTransaction } = useTransactions()
-  const navigate = useNavigate()
 
   async function handleSubmit(data) {
     await addTransaction(data)
-    navigate('/history')
+    setSuccess(data.type === 'income' ? 'Ingreso guardado correctamente' : 'Gasto guardado correctamente')
+    setDetectedData(null)
+    setTimeout(() => setSuccess(null), 3000)
   }
 
   function handleDetected(data) {
@@ -24,6 +26,14 @@ export default function Register() {
   return (
     <div className="max-w-lg mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-white">Registrar transacción</h1>
+
+      {/* Success message */}
+      {success && (
+        <div className="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4" />
+          {success}
+        </div>
+      )}
 
       {/* Mode selector */}
       <div className="grid grid-cols-3 gap-2">
@@ -61,6 +71,7 @@ export default function Register() {
         <VoiceInput onDetected={handleDetected} />
       ) : (
         <TransactionForm
+          key={success ? Date.now() : 'form'}
           onSubmit={handleSubmit}
           initialData={detectedData || {}}
         />
