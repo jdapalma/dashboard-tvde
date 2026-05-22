@@ -5,7 +5,6 @@ import { CreditCard, CheckCircle2, Clock } from 'lucide-react'
 
 export default function Financing() {
   const { transactions, loading, updateTransaction } = useTransactions()
-  const { instruments } = useInstruments()
   const [filter, setFilter] = useState('pending') // 'all' | 'pending' | 'paid'
   const [selected, setSelected] = useState(new Set())
   const [marking, setMarking] = useState(false)
