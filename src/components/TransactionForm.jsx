@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useCategories } from '../hooks/useCategories'
 import { useInstruments } from '../hooks/useInstruments'
 import { DEFAULT_PLATFORM, PLATFORMS } from '../lib/constants'
