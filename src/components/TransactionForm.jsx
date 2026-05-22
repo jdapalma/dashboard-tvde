@@ -1,5 +1,7 @@
-import { useState } from 'react'
-import { PLATFORMS, EXPENSE_CATEGORIES, INCOME_CATEGORIES, DEFAULT_PLATFORM } from '../lib/constants'
+import { useState, useEffect } from 'react'
+import { useCategories } from '../hooks/useCategories'
+import { useInstruments } from '../hooks/useInstruments'
+import { DEFAULT_PLATFORM, PLATFORMS } from '../lib/constants'
 
 export default function TransactionForm({ onSubmit, initialData = {} }) {
   const [type, setType] = useState(initialData.type || 'income')
@@ -9,10 +11,17 @@ export default function TransactionForm({ onSubmit, initialData = {} }) {
   const [date, setDate] = useState(initialData.date || new Date().toISOString().split('T')[0])
   const [description, setDescription] = useState(initialData.description || '')
   const [tripsCount, setTripsCount] = useState(initialData.trips_count || '')
+  const [isFinanced, setIsFinanced] = useState(initialData.is_financed || false)
+  const [instrumentId, setInstrumentId] = useState(initialData.financing_instrument_id || '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const categories = type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES
+  const { expenseCategories, incomeCategories, loading: categoriesLoading } = useCategories()
+  const { instruments, loading: instrumentsLoading } = useInstruments()
+
+  const categories = type === 'income' ? incomeCategories : expenseCategories
+
+  const isPaid = !isFinanced
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -29,6 +38,9 @@ export default function TransactionForm({ onSubmit, initialData = {} }) {
         trips_count: tripsCount ? parseInt(tripsCount) : null,
         source: initialData.source || 'manual',
         receipt_url: initialData.receipt_url || null,
+        is_financed: isFinanced,
+        is_paid: isPaid,
+        financing_instrument_id: isFinanced && instrumentId ? instrumentId : null,
       })
     } catch (err) {
       setError(err.message)
@@ -105,7 +117,7 @@ export default function TransactionForm({ onSubmit, initialData = {} }) {
         >
           <option value="">Seleccionar...</option>
           {categories.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c.id} value={c.name}>{c.name}</option>
           ))}
         </select>
       </div>
@@ -134,6 +146,41 @@ export default function TransactionForm({ onSubmit, initialData = {} }) {
             placeholder="Cantidad de viajes"
             className="w-full px-4 py-3 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white placeholder-[#94a3b8] focus:outline-none focus:border-[#a855f7]"
           />
+        </div>
+      )}
+
+      {/* Financing - only for expenses */}
+      {type === 'expense' && (
+        <div className="space-y-3">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isFinanced}
+              onChange={(e) => {
+                setIsFinanced(e.target.checked)
+                if (!e.target.checked) setInstrumentId('')
+              }}
+              className="w-4 h-4 rounded border-[#3b2d5e] bg-[#231c3d] text-[#a855f7] focus:ring-[#a855f7]"
+            />
+            <span className="text-sm text-[#94a3b8]">Es financiado (tarjeta de crédito / financiadora)</span>
+          </label>
+
+          {isFinanced && (
+            <div>
+              <label className="block text-sm text-[#94a3b8] mb-1">Instrumento de financiamiento</label>
+              <select
+                value={instrumentId}
+                onChange={(e) => setInstrumentId(e.target.value)}
+                className="w-full px-4 py-3 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white focus:outline-none focus:border-[#a855f7]"
+                required={isFinanced}
+              >
+                <option value="">Seleccionar...</option>
+                {instruments.map((i) => (
+                  <option key={i.id} value={i.id}>{i.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       )}
 
