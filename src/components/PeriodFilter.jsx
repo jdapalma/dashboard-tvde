@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react'
+
 const presets = [
   { label: 'Esta semana', value: 'week' },
   { label: 'Semana anterior', value: 'lastWeek' },
@@ -40,8 +42,19 @@ function getPresetRange(preset) {
   return { start, end: now }
 }
 
+function toDateString(d) {
+  return d.toISOString().split('T')[0]
+}
+
 export default function PeriodFilter({ dateRange, onDateRangeChange }) {
   const activePreset = dateRange.preset || 'month'
+  const [startStr, setStartStr] = useState(toDateString(dateRange.start))
+  const [endStr, setEndStr] = useState(toDateString(dateRange.end))
+
+  useEffect(() => {
+    setStartStr(toDateString(dateRange.start))
+    setEndStr(toDateString(dateRange.end))
+  }, [dateRange.start, dateRange.end])
 
   function handlePreset(value) {
     if (value === 'custom') {
@@ -52,12 +65,15 @@ export default function PeriodFilter({ dateRange, onDateRangeChange }) {
     }
   }
 
-  function handleCustomDate(field, value) {
-    const d = new Date(value)
-    if (field === 'start') {
-      onDateRangeChange({ ...dateRange, start: d })
-    } else {
-      onDateRangeChange({ ...dateRange, end: d })
+  function handleCustomDate(field, raw) {
+    if (field === 'start') setStartStr(raw)
+    else setEndStr(raw)
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+      const d = new Date(raw + 'T00:00:00')
+      if (!isNaN(d.getTime())) {
+        onDateRangeChange({ ...dateRange, [field]: d })
+      }
     }
   }
 
@@ -81,14 +97,14 @@ export default function PeriodFilter({ dateRange, onDateRangeChange }) {
         <div className="flex gap-2 items-center">
           <input
             type="date"
-            value={dateRange.start.toISOString().split('T')[0]}
+            value={startStr}
             onChange={(e) => handleCustomDate('start', e.target.value)}
             className="px-3 py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-sm"
           />
           <span className="text-[#94a3b8]">a</span>
           <input
             type="date"
-            value={dateRange.end.toISOString().split('T')[0]}
+            value={endStr}
             onChange={(e) => handleCustomDate('end', e.target.value)}
             className="px-3 py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-sm"
           />
