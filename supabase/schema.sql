@@ -102,10 +102,22 @@ create policy "Users can delete own transactions"
   on transactions for delete
   using (auth.uid() = user_id);
 
--- Categories policies (public read)
+-- Categories policies (public read, authenticated write)
 create policy "Anyone can view categories"
   on categories for select
   using (true);
+
+create policy "Authenticated users can insert categories"
+  on categories for insert
+  with check (auth.role() = 'authenticated');
+
+create policy "Authenticated users can update categories"
+  on categories for update
+  using (auth.role() = 'authenticated');
+
+create policy "Authenticated users can delete categories"
+  on categories for delete
+  using (auth.role() = 'authenticated');
 
 -- Financing instruments policies
 alter table financing_instruments enable row level security;
