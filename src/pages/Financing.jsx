@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
 import { useTransactions } from '../hooks/useTransactions'
-import { useInstruments } from '../hooks/useInstruments'
 import Skeleton from '../components/Skeleton'
 import { CreditCard, CheckCircle2, Clock } from 'lucide-react'
 
