@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import Register from './pages/Register'
 import History from './pages/History'
 import Settings from './pages/Settings'
+import Financing from './pages/Financing'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -29,6 +30,7 @@ function App() {
           >
             <Route path="/" element={<Dashboard />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/financing" element={<Financing />} />
             <Route path="/history" element={<History />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
