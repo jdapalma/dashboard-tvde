@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { useTransactions } from '../hooks/useTransactions'
 import TransactionForm from '../components/TransactionForm'
 import OCRScanner from '../components/OCRScanner'
+import VoiceInput from '../components/VoiceInput'
 
 export default function Register() {
-  const [mode, setMode] = useState('manual') // 'manual' | 'ocr'
-  const [ocrData, setOcrData] = useState(null)
+  const [mode, setMode] = useState('manual') // 'manual' | 'ocr' | 'voice'
+  const [detectedData, setDetectedData] = useState(null)
   const { addTransaction } = useTransactions()
   const navigate = useNavigate()
 
@@ -15,8 +16,8 @@ export default function Register() {
     navigate('/history')
   }
 
-  function handleOCRDetected(data) {
-    setOcrData(data)
+  function handleDetected(data) {
+    setDetectedData(data)
     setMode('manual')
   }
 
@@ -25,10 +26,10 @@ export default function Register() {
       <h1 className="text-2xl font-bold text-white">Registrar transacción</h1>
 
       {/* Mode selector */}
-      <div className="flex gap-2">
+      <div className="grid grid-cols-3 gap-2">
         <button
-          onClick={() => { setMode('manual'); setOcrData(null) }}
-          className={`flex-1 py-3 rounded-lg font-medium transition-colors ${
+          onClick={() => { setMode('manual'); setDetectedData(null) }}
+          className={`py-3 rounded-lg font-medium transition-colors ${
             mode === 'manual'
               ? 'bg-[#a855f7] text-white'
               : 'bg-[#231c3d] text-[#94a3b8] hover:bg-[#2d2350]'
@@ -37,23 +38,31 @@ export default function Register() {
           Manual
         </button>
         <button
-          onClick={() => setMode('ocr')}
-          className={`flex-1 py-3 rounded-lg font-medium transition-colors ${
-            mode === 'ocr'
+          disabled
+          className="py-3 rounded-lg font-medium bg-[#1a1432] text-[#4a4458] cursor-not-allowed border border-[#2d2350]"
+        >
+          Foto / OCR
+        </button>
+        <button
+          onClick={() => setMode('voice')}
+          className={`py-3 rounded-lg font-medium transition-colors ${
+            mode === 'voice'
               ? 'bg-[#a855f7] text-white'
               : 'bg-[#231c3d] text-[#94a3b8] hover:bg-[#2d2350]'
           }`}
         >
-          Foto / OCR
+          Voz
         </button>
       </div>
 
       {mode === 'ocr' ? (
-        <OCRScanner onDetected={handleOCRDetected} />
+        <OCRScanner onDetected={handleDetected} />
+      ) : mode === 'voice' ? (
+        <VoiceInput onDetected={handleDetected} />
       ) : (
         <TransactionForm
           onSubmit={handleSubmit}
-          initialData={ocrData || {}}
+          initialData={detectedData || {}}
         />
       )}
     </div>

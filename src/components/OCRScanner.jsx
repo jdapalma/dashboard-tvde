@@ -5,6 +5,7 @@ export default function OCRScanner({ onDetected }) {
   const [preview, setPreview] = useState(null)
   const [processing, setProcessing] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [statusMsg, setStatusMsg] = useState('')
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
   const fileRef = useRef()
@@ -22,8 +23,12 @@ export default function OCRScanner({ onDetected }) {
   async function processFile(file) {
     setProcessing(true)
     setProgress(0)
+    setStatusMsg('Cargando imagen...')
     try {
-      const { extracted, confidence } = await processImage(file)
+      const { extracted, confidence } = await processImage(file, (msg, pct) => {
+        setStatusMsg(msg)
+        setProgress(pct)
+      })
       setResult({ ...extracted, confidence })
       setProgress(100)
     } catch (err) {
@@ -45,7 +50,7 @@ export default function OCRScanner({ onDetected }) {
   return (
     <div className="space-y-4">
       <div
-        onClick={() => fileRef.current?.click()}
+        onClick={() => !processing && fileRef.current?.click()}
         className="border-2 border-dashed border-[#3b2d5e] rounded-xl p-8 text-center cursor-pointer hover:border-[#a855f7] transition-colors"
       >
         <input
@@ -67,13 +72,40 @@ export default function OCRScanner({ onDetected }) {
       </div>
 
       {processing && (
-        <div className="space-y-2">
-          <div className="text-sm text-[#94a3b8]">Procesando imagen... {Math.round(progress)}%</div>
-          <div className="w-full bg-[#231c3d] rounded-full h-2">
+        <div className="space-y-3">
+          {/* Spinner + message */}
+          <div className="flex items-center gap-3">
+            <div className="relative w-8 h-8">
+              <div className="absolute inset-0 rounded-full border-2 border-[#3b2d5e]" />
+              <div
+                className="absolute inset-0 rounded-full border-2 border-[#a855f7] border-t-transparent"
+                style={{
+                  animation: 'spin 0.8s linear infinite',
+                }}
+              />
+            </div>
+            <div>
+              <p className="text-sm text-white font-medium">{statusMsg}</p>
+              <p className="text-xs text-[#94a3b8]">{Math.round(progress)}%</p>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div className="w-full bg-[#231c3d] rounded-full h-2 overflow-hidden">
             <div
-              className="bg-[#a855f7] h-2 rounded-full transition-all"
-              style={{ width: `${progress}%` }}
+              className="bg-gradient-to-r from-[#a855f7] to-[#6366f1] h-2 rounded-full"
+              style={{
+                width: `${progress}%`,
+                transition: 'width 0.3s ease-out',
+              }}
             />
+          </div>
+
+          {/* Step indicator */}
+          <div className="flex justify-between text-xs text-[#94a3b8]">
+            <span className={progress >= 10 ? 'text-[#a855f7]' : ''}>Preprocesar</span>
+            <span className={progress >= 30 ? 'text-[#a855f7]' : ''}>OCR</span>
+            <span className={progress >= 95 ? 'text-[#a855f7]' : ''}>Extraer</span>
           </div>
         </div>
       )}
@@ -122,6 +154,12 @@ export default function OCRScanner({ onDetected }) {
           Revisa los datos antes de continuar. Puedes corregirlos en el formulario.
         </p>
       )}
+
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   )
 }
