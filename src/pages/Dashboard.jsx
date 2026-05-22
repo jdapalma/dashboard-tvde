@@ -4,8 +4,12 @@ import {
   PieChart, Pie, Cell, Legend,
   LineChart, Line,
 } from 'recharts'
+import { TrendingUp, TrendingDown, DollarSign, Car, BarChart3, Trophy, Calendar, CreditCard } from 'lucide-react'
 import { useTransactions } from '../hooks/useTransactions'
-import { calculateKPIs, getExpensesByCategory, getMonthlyData, getProfitOverTime } from '../utils/kpi'
+import {
+  calculateKPIs, getExpensesByCategory, getMonthlyData, getProfitOverTime,
+  getTopMonthsByIncome, getTopMonthsByProfit, getTopWeeks, getUnpaidFinanced,
+} from '../utils/kpi'
 import KPICard from '../components/KPICard'
 import PeriodFilter from '../components/PeriodFilter'
 import Skeleton from '../components/Skeleton'
@@ -29,6 +33,11 @@ export default function Dashboard() {
     [transactions, dateRange]
   )
 
+  const unpaidFinanced = useMemo(
+    () => getUnpaidFinanced(transactions, dateRange),
+    [transactions, dateRange]
+  )
+
   const categoryData = useMemo(
     () => getExpensesByCategory(transactions, dateRange),
     [transactions, dateRange]
@@ -36,6 +45,9 @@ export default function Dashboard() {
 
   const monthlyData = useMemo(() => getMonthlyData(transactions), [transactions])
   const profitData = useMemo(() => getProfitOverTime(transactions), [transactions])
+  const topIncome = useMemo(() => getTopMonthsByIncome(transactions), [transactions])
+  const topProfit = useMemo(() => getTopMonthsByProfit(transactions), [transactions])
+  const topWeeks = useMemo(() => getTopWeeks(transactions), [transactions])
 
   if (loading) {
     return (
@@ -58,16 +70,18 @@ export default function Dashboard() {
 
       <PeriodFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <KPICard title="Ingresos" value={kpis.totalIncome} color="text-green-400" />
-        <KPICard title="Gastos" value={kpis.totalExpenses} color="text-red-400" />
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <KPICard title="Ingresos" value={kpis.totalIncome} color="text-green-400" icon={TrendingUp} />
+        <KPICard title="Gastos" value={kpis.totalExpenses} color="text-red-400" icon={TrendingDown} />
         <KPICard
           title="Ganancia / Pérdida"
           value={kpis.profit}
           color={kpis.profit >= 0 ? 'text-green-400' : 'text-red-400'}
+          icon={DollarSign}
         />
-        <KPICard title="Total viajes" value={kpis.totalTrips} color="text-[#c084fc]" decimals={0} />
-        <KPICard title="Promedio/viaje" value={kpis.avgPerTrip} color="text-[#c084fc]" />
+        <KPICard title="Total viajes" value={kpis.totalTrips} color="text-[#c084fc]" decimals={0} icon={Car} />
+        <KPICard title="Promedio/viaje" value={kpis.avgPerTrip} color="text-[#c084fc]" icon={BarChart3} />
+        <KPICard title="Financiado por pagar" value={unpaidFinanced} color="text-amber-400" icon={CreditCard} />
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
@@ -125,10 +139,95 @@ export default function Dashboard() {
               <YAxis tick={{ fill: '#94a3b8', fontSize: 12 }} />
               <Tooltip
                 contentStyle={{ backgroundColor: '#1a1432', border: '1px solid #2d2350', borderRadius: 8 }}
+                formatter={(value) => [`${Number(value).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`, 'Ganancia']}
               />
               <Line type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={2} dot={{ fill: '#10b981' }} />
             </LineChart>
           </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Rankings section */}
+      <div className="grid md:grid-cols-3 gap-4">
+        {/* Top 5 months by income */}
+        <div className="bg-[#1a1432] border border-[#2d2350] rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Trophy className="w-4 h-4 text-green-400" />
+            <h3 className="text-sm font-medium text-[#94a3b8]">Top 5 meses en ingresos</h3>
+          </div>
+          {topIncome.length === 0 ? (
+            <p className="text-xs text-[#4a4458] text-center py-4">Sin datos</p>
+          ) : (
+            <div className="space-y-2">
+              {topIncome.map((item, i) => (
+                <div key={item.key} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-bold w-5 ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-orange-400' : 'text-[#4a4458]'}`}>
+                      {i + 1}
+                    </span>
+                    <span className="text-xs text-white">{item.label}</span>
+                  </div>
+                  <span className="text-xs font-medium text-green-400">
+                    {item.income.toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Top 5 months by profit */}
+        <div className="bg-[#1a1432] border border-[#2d2350] rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Trophy className="w-4 h-4 text-[#a855f7]" />
+            <h3 className="text-sm font-medium text-[#94a3b8]">Top 5 meses en ganancia</h3>
+          </div>
+          {topProfit.length === 0 ? (
+            <p className="text-xs text-[#4a4458] text-center py-4">Sin datos</p>
+          ) : (
+            <div className="space-y-2">
+              {topProfit.map((item, i) => (
+                <div key={item.key} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-bold w-5 ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-orange-400' : 'text-[#4a4458]'}`}>
+                      {i + 1}
+                    </span>
+                    <span className="text-xs text-white">{item.label}</span>
+                  </div>
+                  <span className={`text-xs font-medium ${item.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {item.profit.toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Top 10 weeks */}
+        <div className="bg-[#1a1432] border border-[#2d2350] rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Calendar className="w-4 h-4 text-[#c084fc]" />
+            <h3 className="text-sm font-medium text-[#94a3b8]">Top 5 semanas</h3>
+          </div>
+          {topWeeks.length === 0 ? (
+            <p className="text-xs text-[#4a4458] text-center py-4">Sin datos</p>
+          ) : (
+            <div className="space-y-2">
+              {topWeeks.map((item, i) => (
+                <div key={item.key} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-bold w-5 ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-orange-400' : 'text-[#4a4458]'}`}>
+                      {i + 1}
+                    </span>
+                    <span className="text-xs text-white">{item.label}</span>
+                  </div>
+                  <span className="text-xs font-medium text-[#c084fc]">
+                    {item.income.toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
