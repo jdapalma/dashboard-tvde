@@ -93,7 +93,7 @@ export default function Dashboard() {
     return (
       <div className="space-y-4">
         <Skeleton className="h-10 w-48" />
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-1.5 md:gap-3">
           {[...Array(7)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
         <div className="grid md:grid-cols-2 gap-4">
@@ -111,7 +111,7 @@ export default function Dashboard() {
       <PeriodFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-1.5 md:gap-3">
         <KPICard title="Ingresos" value={kpis.totalIncome} color="text-green-400" icon={TrendingUp} />
         <KPICard title="Gastos" value={kpis.totalExpenses} color="text-red-400" icon={TrendingDown} />
         <KPICard
@@ -179,19 +179,19 @@ export default function Dashboard() {
       </div>
 
       {/* Transaction filters */}
-      <div className="flex flex-wrap gap-3">
+      <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2 md:gap-3">
         <input
           type="number"
           placeholder="Buscar por monto..."
           value={searchAmount}
           onChange={(e) => setSearchAmount(e.target.value)}
           step="0.01"
-          className="flex-1 min-w-[150px] px-4 py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white placeholder-[#94a3b8] focus:outline-none focus:border-[#a855f7] text-sm"
+          className="px-3 py-1.5 md:px-4 md:py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white placeholder-[#94a3b8] focus:outline-none focus:border-[#a855f7] text-xs md:text-sm"
         />
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          className="px-4 py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-sm"
+          className="px-3 py-1.5 md:px-4 md:py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-xs md:text-sm"
         >
           <option value="all">Todos los tipos</option>
           <option value="income">Ingresos</option>
@@ -200,9 +200,9 @@ export default function Dashboard() {
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-4 py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-sm"
+          className="px-3 py-1.5 md:px-4 md:py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-xs md:text-sm"
         >
-          <option value="all">Todas las categorías</option>
+          <option value="all">Categoría</option>
           {allCategories.map(c => (
             <option key={c} value={c}>{c}</option>
           ))}
@@ -210,9 +210,9 @@ export default function Dashboard() {
         <select
           value={platformFilter}
           onChange={(e) => setPlatformFilter(e.target.value)}
-          className="px-4 py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-sm"
+          className="px-3 py-1.5 md:px-4 md:py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-xs md:text-sm"
         >
-          <option value="all">Todas las plataformas</option>
+          <option value="all">Plataforma</option>
           <option value="uber">Uber</option>
           <option value="bolt">Bolt</option>
           <option value="otro">Otro</option>
@@ -232,8 +232,8 @@ export default function Dashboard() {
 
       {/* Summary bar */}
       {filtered.length > 0 && (
-        <div className="bg-[#1a1432] border border-[#2d2350] rounded-xl p-4">
-          <div className="flex flex-wrap justify-between gap-4 text-sm">
+        <div className="bg-[#1a1432] border border-[#2d2350] rounded-xl p-3 md:p-4">
+          <div className="flex flex-wrap justify-between gap-2 md:gap-4 text-xs md:text-sm">
             <div className="flex items-center gap-2">
               <span className="text-[#94a3b8]">Ingresos:</span>
               <span className="font-medium text-green-400">

@@ -95,12 +95,12 @@ export default function PeriodFilter({ dateRange, onDateRangeChange }) {
   }
 
   return (
-    <div className="flex flex-wrap gap-2 items-center">
+    <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
       {presets.map((p) => (
         <button
           key={p.value}
           onClick={() => handlePreset(p.value)}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          className={`px-2 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-colors ${
             activePreset === p.value
               ? 'bg-[#a855f7] text-white'
               : 'bg-[#231c3d] text-[#94a3b8] hover:bg-[#2d2350]'
@@ -111,25 +111,25 @@ export default function PeriodFilter({ dateRange, onDateRangeChange }) {
       ))}
 
       {activePreset === 'custom' && (
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-1.5 md:gap-2 items-center">
           <input
             type="date"
             value={startStr}
             onChange={(e) => setStartStr(e.target.value)}
-            className="px-3 py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-sm"
+            className="px-2 md:px-3 py-1.5 md:py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-xs md:text-sm"
           />
-          <span className="text-[#94a3b8]">a</span>
+          <span className="text-[#94a3b8] text-xs">a</span>
           <input
             type="date"
             value={endStr}
             onChange={(e) => setEndStr(e.target.value)}
-            className="px-3 py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-sm"
+            className="px-2 md:px-3 py-1.5 md:py-2 bg-[#231c3d] border border-[#3b2d5e] rounded-lg text-white text-xs md:text-sm"
           />
           <button
             onClick={handleApply}
-            className="flex items-center gap-1 px-3 py-2 bg-[#a855f7] text-white rounded-lg hover:bg-[#9333ea] transition-colors text-sm"
+            className="flex items-center gap-1 px-2 md:px-3 py-1.5 md:py-2 bg-[#a855f7] text-white rounded-lg hover:bg-[#9333ea] transition-colors text-xs md:text-sm"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-3 h-3 md:w-4 md:h-4" />
           </button>
         </div>
       )}
