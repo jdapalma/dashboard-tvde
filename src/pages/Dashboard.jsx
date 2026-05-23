@@ -93,7 +93,7 @@ export default function Dashboard() {
     return (
       <div className="space-y-4">
         <Skeleton className="h-10 w-48" />
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-1.5 md:gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-1.5 md:gap-3">
           {[...Array(7)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
         <div className="grid md:grid-cols-2 gap-4">
@@ -111,7 +111,7 @@ export default function Dashboard() {
       <PeriodFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-1.5 md:gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-1.5 md:gap-3">
         <KPICard title="Ingresos" value={kpis.totalIncome} color="text-green-400" icon={TrendingUp} />
         <KPICard title="Gastos" value={kpis.totalExpenses} color="text-red-400" icon={TrendingDown} />
         <KPICard
@@ -137,7 +137,7 @@ export default function Dashboard() {
       <div className="grid md:grid-cols-2 gap-4">
         <div className="bg-[#1a1432] border border-[#2d2350] rounded-xl p-4">
           <h3 className="text-sm font-medium text-[#94a3b8] mb-4">Ingresos vs Gastos</h3>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="100%" height={200}>
             <BarChart data={monthlyData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#2d2350" />
               <XAxis dataKey="month" tick={{ fill: '#94a3b8', fontSize: 12 }} />
@@ -154,7 +154,7 @@ export default function Dashboard() {
 
         <div className="bg-[#1a1432] border border-[#2d2350] rounded-xl p-4">
           <h3 className="text-sm font-medium text-[#94a3b8] mb-4">Gastos por categoría</h3>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
                 data={categoryData}
@@ -221,7 +221,7 @@ export default function Dashboard() {
 
       {/* Transaction table */}
       <div className="bg-[#1a1432] border border-[#2d2350] rounded-xl overflow-hidden">
-        <div className="max-h-96 overflow-y-auto">
+        <div className="max-h-[50vh] md:max-h-96 overflow-y-auto">
           <TransactionTable
             transactions={filtered}
             onDelete={deleteTransaction}

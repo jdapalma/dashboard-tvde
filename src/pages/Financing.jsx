@@ -74,7 +74,7 @@ export default function Financing() {
     return (
       <div className="space-y-4">
         <Skeleton className="h-10 w-48" />
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-20" />)}
         </div>
         <Skeleton className="h-64" />
@@ -87,13 +87,13 @@ export default function Financing() {
       <h1 className="text-2xl font-bold text-white">Financiados</h1>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="bg-[#1a1432] border border-[#2d2350] rounded-xl p-4">
           <div className="flex items-center gap-2 mb-2">
             <CreditCard className="w-4 h-4 text-amber-400" />
             <p className="text-xs text-[#94a3b8]">Total financiado</p>
           </div>
-          <p className="text-xl font-bold text-amber-400">
+          <p className="text-lg md:text-xl font-bold text-amber-400">
             {financed.reduce((s, t) => s + Number(t.amount), 0).toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
           </p>
         </div>
@@ -102,7 +102,7 @@ export default function Financing() {
             <Clock className="w-4 h-4 text-red-400" />
             <p className="text-xs text-[#94a3b8]">Por pagar</p>
           </div>
-          <p className="text-xl font-bold text-red-400">
+          <p className="text-lg md:text-xl font-bold text-red-400">
             {totalPending.toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
           </p>
         </div>
@@ -111,14 +111,14 @@ export default function Financing() {
             <CheckCircle2 className="w-4 h-4 text-green-400" />
             <p className="text-xs text-[#94a3b8]">Pagado</p>
           </div>
-          <p className="text-xl font-bold text-green-400">
+          <p className="text-lg md:text-xl font-bold text-green-400">
             {totalPaid.toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
           </p>
         </div>
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {[
           { key: 'all', label: 'Todos' },
           { key: 'pending', label: 'Por pagar' },
@@ -127,7 +127,7 @@ export default function Financing() {
           <button
             key={f.key}
             onClick={() => { setFilter(f.key); setSelected(new Set()) }}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === f.key
                 ? 'bg-[#a855f7] text-white'
                 : 'bg-[#231c3d] text-[#94a3b8] hover:bg-[#2d2350]'
@@ -163,7 +163,7 @@ export default function Financing() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[550px]">
               <thead>
                 <tr className="border-b border-[#2d2350]">
                   <th className="py-3 px-4 w-10">
